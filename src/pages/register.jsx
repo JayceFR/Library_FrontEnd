@@ -5,6 +5,7 @@ import Input from '../components/input'
 import { email_regex_value, password_regex_value } from '../constants/regexConstants'
 import { useNavigate } from 'react-router-dom'
 import { AuthData } from '../auth/authentication'
+import { base_url } from '../constants/urlConstants'
 //import './App.css'
 
 
@@ -35,13 +36,13 @@ function Register() {
 
   const sign_up = async () => {
 
-    const base_url = "https://back-end.jaycejefferson3.repl.co/account"
+    const url = base_url + "account"
     const user_data = {
       "first_name": name,
       "email": email,
       "password": password
     }
-    const result = await fetch(base_url, {
+    const result = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -50,7 +51,7 @@ function Register() {
       body: JSON.stringify(user_data)
     })
 
-    const result2 = await fetch(base_url, {
+    const result2 = await fetch(url, {
       headers: {
         'Accept': 'application/json'
       }

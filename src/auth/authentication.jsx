@@ -4,6 +4,7 @@ import { null_uuid } from "../constants/uuidConstants";
 import App from "../index";
 import Nav from "../components/nav";
 import { useNavigate } from "react-router-dom";
+import { base_url } from "../constants/urlConstants";
 export const AuthContext = createContext();
 
 export const AuthData = () => useContext(AuthContext);
@@ -31,7 +32,7 @@ function Authenticaiton(){
     const navigate = useNavigate();
 
     const login = async (email, password) => {
-        const url = "https://back-end.jaycejefferson3.repl.co/login";
+        const url = base_url + "login";
         const user_data = {
             "email": email,
             "password": password
@@ -61,7 +62,7 @@ function Authenticaiton(){
     }
 
     const update_comm_id = async (id, comm_id) => {
-      const url = "https://back-end.jaycejefferson3.repl.co/account/" + id;
+      const url = base_url + "account/" + id;
       const comm_data = {
         "community_id" : comm_id,
       }
@@ -88,7 +89,7 @@ function Authenticaiton(){
     }
 
     const create_comm = async (name, id) => {
-      const url = "https://back-end.jaycejefferson3.repl.co/community";
+      const url = base_url + "community";
       const comm_data = {
           "community_name": name
       }
@@ -107,7 +108,7 @@ function Authenticaiton(){
         "community_id": response['id'],
       }
       if (response['id'] != null_uuid && response != "Found another community with the same name"){
-        const result2 = await fetch("https://back-end.jaycejefferson3.repl.co/account/" + id, {
+        const result2 = await fetch( base_url +"account/" + id, {
           method: "POST",
           headers: {
             'Content-Type': 'application/json',
