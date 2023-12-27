@@ -12,6 +12,7 @@ export const AuthData = () => useContext(AuthContext);
 function Authenticaiton(){
     const [user, setUser] = useState({id:null, first_name : null, email : null, password : null, community_id : null, is_logged_in :false});
     const [mode, setMode] = useState("dark");
+    const [messages, setMessages] = useState([]);
 
     function change_dark(){
         var r = document.querySelector(':root');
@@ -59,6 +60,28 @@ function Authenticaiton(){
             }
         })
         
+    }
+
+    const update_messages = async (sender_id, receiver_id) => {
+        const url = base_url + "messages"
+        const message_data = {
+        "senderid": sender_id,
+        "receiverid" : receiver_id
+        }
+        const result = await fetch(url, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(message_data)
+        });
+        const response = await result.json();
+        console.log(response);
+        setMessages(response);
+        return new Promise((resolve, reject) => {
+            resolve("success")
+        })
     }
 
     const update_comm_id = async (id, comm_id) => {
@@ -146,7 +169,7 @@ function Authenticaiton(){
     }
 
     return (
-        <AuthContext.Provider value={{user, login, logout, mode, change_dark, create_comm, update_comm_id}}>
+        <AuthContext.Provider value={{user, login, logout, mode, change_dark, create_comm, update_comm_id, update_messages, messages, setMessages}}>
             <>
                 <Nav/>
                 <App/>

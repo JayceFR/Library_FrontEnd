@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { AuthData } from "../auth/authentication";
 import Message from "../components/message";
 import Input from "../components/input";
 import User from "../components/user";
+import { base_url } from "../constants/urlConstants";
 //Sample message sent to the socket
 /*
 {"content":"hello", 
-"sender_id" : "02a42340-2b9b-4acd-b788-12dfb56c368d", 
-"receiver_id" : "e653a529-b3d5-4775-8939-409aaa6e151a"}
+"senderid" : "02a42340-2b9b-4acd-b788-12dfb56c368d", 
+"receiverid" : "e653a529-b3d5-4775-8939-409aaa6e151a"}
 */
 //Sample message being returned both by the socket and the db
 /*
@@ -18,13 +19,13 @@ ReceiverID: '02a42340-2b9b-4acd-b788-12dfb56c368d',
 SentAt: '2023-12-26T11:19:24.35101199Z'}
 */
 function Messages(){
-  const [messages, setMessages] = useState([]);
   //Message socket connection 
   const [socket, setSocket] = useState(null);
+  //Input
   const [input, setInput] = useState("");
   const [receivers, setReceivers] = useState([]) // Used to hold the left pane members
   const [curr_receiver, setCurrReceiver] = useState(null) //Used to hold a member of the receivers
-  const {user} = AuthData();
+  const {user, update_messages, messages, setMessages} = AuthData();
   //Search socket connection
   const [search_socket, setSearchSocket] = useState(null);
   const [search, setSearch] = useState("");
@@ -37,7 +38,7 @@ function Messages(){
     };
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      console.log(message.Content);
+      console.log(message);
       setMessages((prev_message)=>[...prev_message, message]);
     }
     ws.onclose = () => {
@@ -46,7 +47,6 @@ function Messages(){
     };
     setSocket(ws)
     //Get the messages from the database for the specific recepient
-
     //Connecting to the search socket
     const sws = new WebSocket("ws://localhost:8080/search");
     sws.onopen = () => {
@@ -75,17 +75,38 @@ function Messages(){
     setSearch(val);
     search_socket.send(val);
   }
-
+  
   //used to update the message tab i.e. right pane
-  function update_receiver(user){
-    if (curr_receiver != user){
+  function update_receiver(receiver){
+    if (curr_receiver != receiver){
       //Now update the pane
-      setCurrReceiver(user);
-      console.log("Updated the user")
-      console.log(user)
+      setCurrReceiver(receiver);
+      console.log("Updated the receiver")
+      console.log(receiver)
       //Refetch the messages
+      do_update_messages(user.id, receiver.id)
       //Check if present in the left pane
     }
+  }
+
+  const do_update_messages = async (sid, rid) => {
+    try{
+      await update_messages(sid, rid);
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
+  function post_message(e){
+    e.preventDefault();
+    const data = {
+      "content": input,
+      "sender_id": user.id,
+      "receiver_id": curr_receiver.id
+    }
+    setInput("")
+    socket.send(JSON.stringify(data))
   }
 
   return(
@@ -95,21 +116,21 @@ function Messages(){
     <div className="row">
       <div className="chat">
         <p className="chat_title">Chats</p>
-        <datalist id="search_list">
-          {search_users.map((curr_user, index) => (
-            <option key={index} value={curr_user.first_name} />
-          ))}
-        </datalist>
-        <input list="search_list" type="text" value={search} placeholder="Search" onChange={e => {update(e.target.value)}}/>
-        <User name="Jayce" onclick_func = {setCurrReceiver} id = {"8383"}/>
+        <input type="text" value={search} placeholder="Search" onChange={e => {update(e.target.value)}}/>
+        {search.trim().length != 0 && search_users.map((curr_user, index) => (
+          <User key={index} name={curr_user.first_name} user = {curr_user} func={update_receiver}/>
+        ))}
       </div>
       <div className="dash">
         <div className="messages">
-          <Message content = "Helllo " left = {true}></Message>
-          <br></br>
-          <Message content = "Hi" left = {false}></Message>
+          {messages.map((curr_message, index) => (
+            curr_message.SenderID == user.id ? <React.Fragment key={index}> <Message key={index} content={curr_message.Content} left = {false}></Message> <br></br> </React.Fragment>: <React.Fragment key={index}><Message key={index} content={curr_message.Content} left = {true}></Message> <br></br> </React.Fragment>
+          ))}
         </div>
-        <input type="text" value={input} placeholder="Type a message..." onChange={e => {setInput(e.target.value)}}/>
+        <form onSubmit={post_message}>
+          <input className="input_bx" type="text" value={input} placeholder="Type a message..." onChange={e => {setInput(e.target.value)}}/>
+          <input className="send" type="image" src="../../Assets/send_icon.png"/>
+        </form>
       </div>
     </div>
     

@@ -1,20 +1,20 @@
-:root{
+:root {
     --bgcolor: #1B1B1B;
     --txtcolor: #E2E2E2;
     --empcolor: white;
 }
 
 body {
-    background-color: var(--bgcolor) ;
+    background-color: var(--bgcolor);
     color: var(--txtcolor);
     transition: background-color 0.8s;
 }
 
-.navbar{
+.navbar {
     list-style-type: none;
     position: -webkit-sticky;
     position: sticky;
-    top:0;
+    top: 0;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -24,19 +24,19 @@ body {
     float: right;
 }
 
-.navbar li a{
+.navbar li a {
     display: block;
     color: var(--txtcolor);
     font-style: oblique;
     text-align: center;
     padding: 14px 16px;
     font-size: 15px;
-    text-decoration: none; 
+    text-decoration: none;
     transition: color 1s, font-size 0.5s;
     transition-timing-function: ease-in-out;
 }
 
-#light_dark_mode{
+#light_dark_mode {
     display: block;
     float: right;
     text-align: center;
@@ -46,7 +46,7 @@ body {
     height: 35px;
 }
 
-#light_dark_txt{
+#light_dark_txt {
     display: block;
     float: right;
     font-size: small;
@@ -54,64 +54,67 @@ body {
     transition: color 1.2s;
 }
 
-.navbar li a:hover:not(.active){
+.navbar li a:hover:not(.active) {
     color: #A9D6E5;
     font-size: 19px;
 }
 
-.navbar li a.active{
+.navbar li a.active {
     border-bottom-style: solid;
     border-color: #A9D6E5;
 }
 
 @media screen and (max-width: 600px) {
-    .navbar li.right, 
-    .navbar li {float: none;}
+
+    .navbar li.right,
+    .navbar li {
+        float: none;
+    }
 }
 
 /*Login page and Register page*/
 
-.error{
+.error {
     color: red;
 }
 
-.lrform{
+.lrform {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 80vh;
 }
 
-.lrform form{
+.lrform form {
     text-align: center;
     width: 420px;
     background-color: transparent;
-    box-shadow: 0 0 50px brown ;
+    box-shadow: 0 0 50px brown;
     border-radius: 10px;
     padding: 30px 40px;
 }
 
-.lrform form label{
+.lrform form label {
     font-size: 36px;
     text-align: center;
 }
 
 
-.lrform .inputbox{
+.lrform .inputbox {
     position: relative;
     width: 100%;
     height: 50px;
     margin: 30px 0;
 }
 
-.inputbox img{
+.inputbox img {
     position: absolute;
     right: 20px;
-    top:50%;
+    top: 50%;
     transform: translateY(-50%);
 }
 
-.inputbox input{
+.inputbox input {
     width: 100%;
     height: 100%;
     background: transparent;
@@ -124,11 +127,11 @@ body {
     padding-left: 10px;
 }
 
-.inputbox input::placeholder{
+.inputbox input::placeholder {
     color: var(--empcolor);
 }
 
-.btn{
+.btn {
     width: 100%;
     height: 45px;
     background-color: white;
@@ -142,25 +145,26 @@ body {
     margin-left: 5px;
 }
 
-.lrform .register-link{
+.lrform .register-link {
     font-size: 14.5px;
     text-align: center;
     margin: 20px 0 15px;
 }
-.register-link p a{
+
+.register-link p a {
     color: var(--empcolor);
     text-decoration: none;
     font-weight: 600;
     cursor: pointer;
 }
 
-.register-link p a:hover{
+.register-link p a:hover {
     text-decoration: underline;
 }
 
 /* The message page */
 
-.chat{
+.chat {
     float: left;
     width: 20%;
     height: 85vh;
@@ -171,40 +175,50 @@ body {
     border: 2px solid rgb(0, 128, 128);
 }
 
-.chat_title{
+.chat_title {
     text-align: center;
     font-weight: bold;
     font-size: 20px;
 }
 
-.messages{
+.messages {
     overflow-y: auto;
     height: 75vh;
     /* border: 2px solid rgb(0, 128, 128); */
 }
 
-.message{
-    display: flex;
+.message {
+    display: block;
     flex-direction: column;
-    padding: 10px 5px 10px;
+    margin: 5px;
     font-size: 14px;
-    border-radius: 10px 10px 20px 20px;
+    border-radius: 10px;
     max-width: 50%;
     color: white;
-    padding: 8px 10px 8px 12px;
+    word-wrap: break-word;
 }
 
 .right {
     background-color: rgb(171, 41, 91);
+    align-self: flex-end;
+    float: right;
+    border-radius: 10px 10px 0 10px;
+    padding: 8px 12px 8px 10px;
+    clear: both;
 }
 
-.left{
+.left {
     background-color: rgb(77, 10, 97);
-    border-bottom-left-radius: 0px;
-}
-.dash{
+    align-self: flex-start;
     float: left;
-    width:80%;
+    border-radius: 10px 10px 10px 0;
+    padding: 8px 10px 8px 12px;
+    clear: both;
+}
+
+.dash {
+    float: left;
+    width: 80%;
     box-sizing: border-box;
     padding: 10px;
     height: 85vh;
@@ -217,37 +231,54 @@ body {
     clear: both;
 }
 
-.dash input{
+.dash .input_bx {
     width: 90%;
     padding: 18px 25px 15px;
     background: transparent;
     border-radius: 35px;
+    box-sizing: border-box;
     color: var(--empcolor);
     font-size: 16px;
     font-weight: 600;
     border: 2px solid rgba(255, 255, 255, 0.8);
 }
 
-.row:focus{
+.row:focus {
     outline: none;
 }
 
-.user{
+.dash .send {
+    font-size: 30px;
+    padding: 0px 11px;
+    z-index: 100;
+    width: 6%;
+    box-sizing: border-box;
+    transform: rotate(45deg) translateY(35%);
+    border-radius: 15px;
+    font-weight: 600;
+}
+
+.user {
     border: 1px solid rgba(255, 255, 255, 0.3);
     position: relative;
     width: 100%;
     height: 50px;
     margin: 30px 0;
     text-align: center;
+    cursor: pointer;
 }
 
-.user img{
+.user:hover {
+    box-shadow: 0 0 50px brown;
+}
+
+.user img {
     position: absolute;
     left: 10px;
     width: 30px;
     border-radius: 50%;
     background-color: aqua;
-    top:50%;
+    top: 50%;
     transform: translateY(-50%);
 }
 
@@ -260,14 +291,14 @@ body {
     left: 40%;
 }
 
-.chat input{
+.chat input {
     width: 100%;
     background-color: transparent;
     border-bottom: 2px solid white;
     color: var(--empcolor);
 }
 
-.chat input :hover{
+.chat input :hover {
     border: none;
     border-bottom: 2px solid white;
 }
