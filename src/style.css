@@ -170,9 +170,10 @@ body {
     height: 85vh;
     overflow-y: auto;
     overflow-x: hidden;
+    border-radius: 30px;
     padding: 5px;
     box-sizing: border-box;
-    border: 2px solid rgb(0, 128, 128);
+    background-color: #28263b;
 }
 
 .chat_title {
@@ -216,19 +217,36 @@ body {
     clear: both;
 }
 
+.empty {
+    float: left;
+    align-self: flex-start;
+    clear: both;    
+}
+
+
 .dash {
     float: left;
     width: 80%;
     box-sizing: border-box;
     padding: 10px;
     height: 85vh;
-    border: 2px solid rgb(0, 128, 128);
+    border-radius: 30px;
 }
 
 .row:after {
     content: "";
     display: table;
     clear: both;
+}
+
+.row{
+    background-color: #161523;
+    border-radius: 30px;
+    box-shadow: 0 0 50px rgb(53, 28, 103);
+    backdrop-filter: blur(15px);
+    margin-left: 30px;
+    margin-right: 30px;
+    -webkit-backdrop-filter: blur(15px);
 }
 
 .dash .input_bx {
@@ -240,7 +258,7 @@ body {
     color: var(--empcolor);
     font-size: 16px;
     font-weight: 600;
-    border: 2px solid rgba(255, 255, 255, 0.8);
+    border: 2px solid rgba(255, 255, 255, 0.8)
 }
 
 .row:focus {
@@ -302,3 +320,21 @@ body {
     border: none;
     border-bottom: 2px solid white;
 }
+
+::-webkit-scrollbar {
+width: 10px;
+}
+  
+::-webkit-scrollbar-track {
+box-shadow: inset 0 0 5px grey; 
+border-radius: 10px;
+}
+   
+::-webkit-scrollbar-thumb {
+background: red; 
+border-radius: 10px;
+}
+  
+::-webkit-scrollbar-thumb:hover {
+background: #b30000; 
+}  

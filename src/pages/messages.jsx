@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { AuthData } from "../auth/authentication";
 import Message from "../components/message";
-import Input from "../components/input";
 import User from "../components/user";
 import { base_url } from "../constants/urlConstants";
 //Sample message sent to the socket
@@ -30,6 +29,8 @@ function Messages(){
   const [search_socket, setSearchSocket] = useState(null);
   const [search, setSearch] = useState("");
   const [search_users, setSearchUsers] = useState([]);
+  //Auto scroll
+  const bottomOfRef = useRef(null);
   useEffect(()=>{
     //On mount
     const ws = new WebSocket("ws://localhost:8080/ws?id=" +user.id);
@@ -62,7 +63,7 @@ function Messages(){
       //Reconnection
     };
     setSearchSocket(sws);
-
+    fetch_chat(user.id);
     //Close the websocket connection
     return () => {
       ws.close();
@@ -71,9 +72,42 @@ function Messages(){
     
   }, []);
 
+  useEffect(() => {
+    if (bottomOfRef.current){
+      bottomOfRef.current.scrollIntoView({});
+    }
+  }, [messages]);
+
   function update(val){
     setSearch(val);
     search_socket.send(val);
+  }
+
+  const fetch_chat = async (id) => {
+    try{
+      await get_chat(id);
+    }
+    catch(error){
+      console.log(error)
+    }
+  }
+
+  const get_chat = async (id) => {
+    const url = base_url + "chat/" + id;
+    const result = await fetch(url, {
+        method: "GET",
+        headers:{
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    });
+    const response = await result.json();
+    console.log("chat history fetched");
+    console.log(response);
+    setReceivers(response);  
+    return new Promise((resolve, reject) => {
+      resolve("success");
+    })
   }
   
   //used to update the message tab i.e. right pane
@@ -81,11 +115,21 @@ function Messages(){
     if (curr_receiver != receiver){
       //Now update the pane
       setCurrReceiver(receiver);
-      console.log("Updated the receiver")
-      console.log(receiver)
+      console.log("Updated the receiver");
+      console.log(receiver);
       //Refetch the messages
-      do_update_messages(user.id, receiver.id)
+      do_update_messages(user.id, receiver.id);
       //Check if present in the left pane
+      let present = false;
+      for(let x = 0; x <receivers.length; x++){
+        if (receivers[x].id == receiver.id){
+          present = true;
+        }
+      }
+      if (!present){
+        //add it to the list
+        setReceivers((prev_receivers) => [receiver, ...prev_receivers])
+      }
     }
   }
 
@@ -106,6 +150,14 @@ function Messages(){
       "receiver_id": curr_receiver.id
     }
     setInput("")
+    //sort it in the order
+    let pos = -1
+    for(let x = 0; x <receivers.length; x++){
+      if (receivers[x].id == curr_receiver.id){
+        pos = x;
+      }
+    }
+    setReceivers((prev_receivers) => [curr_receiver, ...prev_receivers.slice(0,pos).concat(...prev_receivers.slice(pos+1))])
     socket.send(JSON.stringify(data))
   }
 
@@ -120,13 +172,24 @@ function Messages(){
         {search.trim().length != 0 && search_users.map((curr_user, index) => (
           <User key={index} name={curr_user.first_name} user = {curr_user} func={update_receiver}/>
         ))}
+        {search.trim().length == 0 && receivers.map((curr_user, index) => (
+          <User key={index} name={curr_user.first_name} user = {curr_user} func={update_receiver}/>
+        ))}
       </div>
       <div className="dash">
         <div className="messages">
-          {messages.map((curr_message, index) => (
-            curr_message.SenderID == user.id ? <React.Fragment key={index}> <Message key={index} content={curr_message.Content} left = {false}></Message> <br></br> </React.Fragment>: <React.Fragment key={index}><Message key={index} content={curr_message.Content} left = {true}></Message> <br></br> </React.Fragment>
-          ))}
+          {messages.map((curr_message, index) => {
+            if (curr_message.SenderID == user.id){
+              return <Message key={index} content={curr_message.Content} left = {false}></Message> 
+            }
+            if (curr_message.SenderID != user.id){
+              return  <Message key={index} content={curr_message.Content} left = {true}></Message> 
+            }
+            })}
+          <br></br>
+          <div className="message empty" ref={bottomOfRef}></div>
         </div>
+        
         <form onSubmit={post_message}>
           <input className="input_bx" type="text" value={input} placeholder="Type a message..." onChange={e => {setInput(e.target.value)}}/>
           <input className="send" type="image" src="../../Assets/send_icon.png"/>

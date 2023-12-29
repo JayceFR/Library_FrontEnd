@@ -29,7 +29,6 @@ function Nav(){
                     { user.is_logged_in ? <li><NavLink to={'/'} onClick={logout}>Log Out</NavLink></li> : <li><NavLink to={'/login'}>Log In</NavLink></li>}
                 </ul>
             </nav>
-            <br></br>
             {mode == "dark" && <img id="light_dark_mode" src = "../../Assets/light_on.png"/>}
             {mode == "light" && <img id="light_dark_mode" src = "../../Assets/light_off.png"/>}
             {mode=="dark" && <a onClick={change_dark} id="light_dark_txt">Turn on the lights</a>}
