@@ -17,6 +17,9 @@ SenderID: 'e653a529-b3d5-4775-8939-409aaa6e151a',
 ReceiverID: '02a42340-2b9b-4acd-b788-12dfb56c368d', 
 SentAt: '2023-12-26T11:19:24.35101199Z'}
 */
+
+//User object should have a unseen_message member varaible as well 
+//Message should even have a member variable of seen/ unseen 
 function Messages(){
   //Message socket connection 
   const [socket, setSocket] = useState(null);
@@ -37,11 +40,7 @@ function Messages(){
     ws.onopen = () => {
       console.log("Websocket connected to successfully");
     };
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log(message);
-      setMessages((prev_message)=>[...prev_message, message]);
-    }
+    
     ws.onclose = () => {
       console.log("Websocket disconnected");
       //Reconnection
@@ -49,7 +48,7 @@ function Messages(){
     setSocket(ws)
     //Get the messages from the database for the specific recepient
     //Connecting to the search socket
-    const sws = new WebSocket("ws://localhost:8080/search");
+    const sws = new WebSocket("ws://localhost:8080/search?id=" + user.id);
     sws.onopen = () => {
       console.log("Search Websocket connected to successfully");
     };
@@ -71,6 +70,38 @@ function Messages(){
     }
     
   }, []);
+
+  useEffect(() => {
+    if (socket){
+      socket.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        console.log("Inside the on message")
+        console.log(message);
+        //Need to perform a check whether the message is from the current receiver
+        console.log(curr_receiver)
+        let current_message_list = false
+        if (curr_receiver){
+          if (message.SenderID == curr_receiver.id || message.ReceiverID == curr_receiver.id){
+            //The message belongs in the current list of messages
+            setMessages((prev_message)=>[...prev_message, message]);
+            current_message_list = true
+          }
+        }
+        if (!current_message_list){
+          let present = false;
+          for(let x = 0;x<receivers.length;x++){
+            if(message.SenderID == receivers[x].id){
+              console.log("I am here")
+              let curr_rec = receivers[x]
+              curr_rec.bubble += 1
+              setReceivers((prev_receivers)=>[curr_rec ,...prev_receivers.slice(0,x).concat(...prev_receivers.slice(x+1))])
+              present = true;
+            }
+          }
+        }
+      }
+    }
+  }, [socket, curr_receiver, receivers]) //curr_receiver is added so the function has access to the latest value
 
   useEffect(() => {
     if (bottomOfRef.current){
@@ -112,23 +143,23 @@ function Messages(){
   
   //used to update the message tab i.e. right pane
   function update_receiver(receiver){
-    if (curr_receiver != receiver){
-      //Now update the pane
-      setCurrReceiver(receiver);
-      console.log("Updated the receiver");
-      console.log(receiver);
-      //Refetch the messages
-      do_update_messages(user.id, receiver.id);
-      //Check if present in the left pane
-      let present = false;
-      for(let x = 0; x <receivers.length; x++){
-        if (receivers[x].id == receiver.id){
-          present = true;
-        }
+    setCurrReceiver(receiver);
+    if (curr_receiver){
+      if (curr_receiver.id != receiver.id){
+        //Refetch the messages
+        do_update_messages(user.id, receiver.id);
       }
-      if (!present){
-        //add it to the list
-        setReceivers((prev_receivers) => [receiver, ...prev_receivers])
+    }
+    else{
+      do_update_messages(user.id, receiver.id);
+    }
+    if (receiver.bubble > 0){
+      for(let x = 0; x < receivers.length; x++){
+        if (receivers[x].id == receiver.id){
+          let curr_rec = receivers[x]
+          curr_rec.bubble = 0
+          setReceivers((prev_receivers)=>[curr_rec ,...prev_receivers.slice(0,x).concat(...prev_receivers.slice(x+1))])
+        }
       }
     }
   }
@@ -151,13 +182,23 @@ function Messages(){
     }
     setInput("")
     //sort it in the order
+    console.log("Current receiver inside the post_message")
+    console.log(curr_receiver)
     let pos = -1
+    let present = false;
     for(let x = 0; x <receivers.length; x++){
       if (receivers[x].id == curr_receiver.id){
+        present = true;
         pos = x;
       }
     }
-    setReceivers((prev_receivers) => [curr_receiver, ...prev_receivers.slice(0,pos).concat(...prev_receivers.slice(pos+1))])
+    let cloned_curr_receiver = JSON.parse(JSON.stringify(curr_receiver));
+    if (!present){
+      setReceivers((prev_receivers) => [cloned_curr_receiver, ...prev_receivers])
+    }
+    else{
+      setReceivers((prev_receivers) => [cloned_curr_receiver, ...prev_receivers.slice(0,pos).concat(...prev_receivers.slice(pos+1))])
+    }
     socket.send(JSON.stringify(data))
   }
 
@@ -170,10 +211,10 @@ function Messages(){
         <p className="chat_title">Chats</p>
         <input type="text" value={search} placeholder="Search" onChange={e => {update(e.target.value)}}/>
         {search.trim().length != 0 && search_users.map((curr_user, index) => (
-          <User key={index} name={curr_user.first_name} user = {curr_user} func={update_receiver}/>
+          <User key={index} name={curr_user.first_name} bubble={curr_user.bubble} user = {curr_user} func={update_receiver}/>
         ))}
         {search.trim().length == 0 && receivers.map((curr_user, index) => (
-          <User key={index} name={curr_user.first_name} user = {curr_user} func={update_receiver}/>
+          <User key={index} name={curr_user.first_name} bubble={curr_user.bubble} user = {curr_user} func={update_receiver}/>
         ))}
       </div>
       <div className="dash">
