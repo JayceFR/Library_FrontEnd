@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { AuthData } from "../auth/authentication";
 import Message from "../components/message";
 import User from "../components/user";
-import { base_url } from "../constants/urlConstants";
+import { base_url, socket_url } from "../constants/urlConstants";
 //Sample message sent to the socket
 /*
 {"content":"hello", 
@@ -27,7 +27,7 @@ function Messages(){
   const [input, setInput] = useState("");
   const [receivers, setReceivers] = useState([]) // Used to hold the left pane members
   const [curr_receiver, setCurrReceiver] = useState(null) //Used to hold a member of the receivers
-  const {user, update_messages, messages, setMessages} = AuthData();
+  const {user, update_messages, messages, setMessages, active_conns} = AuthData();
   //Search socket connection
   const [search_socket, setSearchSocket] = useState(null);
   const [search, setSearch] = useState("");
@@ -36,7 +36,7 @@ function Messages(){
   const bottomOfRef = useRef(null);
   useEffect(()=>{
     //On mount
-    const ws = new WebSocket("ws://localhost:8080/ws?id=" +user.id);
+    const ws = new WebSocket(socket_url+"ws?id=" +user.id);
     ws.onopen = () => {
       console.log("Websocket connected to successfully");
     };
@@ -48,7 +48,7 @@ function Messages(){
     setSocket(ws)
     //Get the messages from the database for the specific recepient
     //Connecting to the search socket
-    const sws = new WebSocket("ws://localhost:8080/search?id=" + user.id);
+    const sws = new WebSocket(socket_url+"search?id=" + user.id);
     sws.onopen = () => {
       console.log("Search Websocket connected to successfully");
     };
@@ -109,6 +109,30 @@ function Messages(){
     }
   }, [messages]);
 
+  useEffect(() => {
+    for(let y = 0; y < receivers.length; y++){
+      let present = false;
+      for(let x = 0; x < active_conns.length; x++){
+        if(receivers[y].id == active_conns[x].id){
+          let rec = receivers[y];
+          present = true;
+          rec.active = true;
+          setReceivers((prev_receivers)=>[...prev_receivers.slice(0,y).concat(rec).concat(...prev_receivers.slice(y+1))])
+        }
+      }
+      if (!present){
+        if (receivers[y].active){
+          //user is no longer active
+          console.log("i am here");
+          let rec = receivers[y];
+          rec.active = false;
+          setReceivers((prev_receivers)=>[...prev_receivers.slice(0,y).concat(rec).concat(...prev_receivers.slice(y+1))])
+        }
+      }
+    }
+    
+  }, [active_conns])
+
   function update(val){
     setSearch(val);
     search_socket.send(val);
@@ -158,7 +182,7 @@ function Messages(){
         if (receivers[x].id == receiver.id){
           let curr_rec = receivers[x]
           curr_rec.bubble = 0
-          setReceivers((prev_receivers)=>[curr_rec ,...prev_receivers.slice(0,x).concat(...prev_receivers.slice(x+1))])
+          setReceivers((prev_receivers)=>[...prev_receivers.slice(0,x).concat(curr_rec).concat(...prev_receivers.slice(x+1))])
         }
       }
     }
@@ -210,11 +234,11 @@ function Messages(){
       <div className="chat">
         <p className="chat_title">Chats</p>
         <input type="text" value={search} placeholder="Search" onChange={e => {update(e.target.value)}}/>
-        {search.trim().length != 0 && search_users.map((curr_user, index) => (
-          <User key={index} name={curr_user.first_name} bubble={curr_user.bubble} user = {curr_user} func={update_receiver}/>
-        ))}
+        {search.trim().length != 0 && search_users.map((curr_user, index) => {
+          return <User active ={curr_user.active} key={index} name={curr_user.first_name} bubble={curr_user.bubble} user = {curr_user} func={update_receiver}/>
+        })}
         {search.trim().length == 0 && receivers.map((curr_user, index) => (
-          <User key={index} name={curr_user.first_name} bubble={curr_user.bubble} user = {curr_user} func={update_receiver}/>
+          <User active = {curr_user.active} key={index} name={curr_user.first_name} bubble={curr_user.bubble} user = {curr_user} func={update_receiver}/>
         ))}
       </div>
       <div className="dash">

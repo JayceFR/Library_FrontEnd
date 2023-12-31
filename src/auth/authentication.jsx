@@ -4,7 +4,7 @@ import { null_uuid } from "../constants/uuidConstants";
 import App from "../index";
 import Nav from "../components/nav";
 import { useNavigate } from "react-router-dom";
-import { base_url } from "../constants/urlConstants";
+import { base_url, socket_url } from "../constants/urlConstants";
 export const AuthContext = createContext();
 
 export const AuthData = () => useContext(AuthContext);
@@ -13,6 +13,28 @@ function Authenticaiton(){
     const [user, setUser] = useState({id:null, first_name : null, email : null, password : null, community_id : null, is_logged_in :false});
     const [mode, setMode] = useState("dark");
     const [messages, setMessages] = useState([]);
+    //Active socket connection
+    const [active_socket, setAcitveSocket] = useState(null);
+    const [active_conns, setActiveConns] = useState([]);
+
+    useEffect(()=>{
+        const ws = new WebSocket(socket_url+"active");
+        ws.onopen = () =>{
+            console.log("Connected to active socket");
+        }
+        ws.onclose = () =>{
+            console.log("Disconnected from active socket");
+        }
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            console.log(message);
+            setActiveConns(message);
+        }
+        setAcitveSocket(ws)
+        return () => {
+            ws.close();
+        }
+    }, [])
 
     function change_dark(){
         var r = document.querySelector(':root');
@@ -55,6 +77,11 @@ function Authenticaiton(){
             }
             else{
                 console.log("Successfully logged in ")
+                const data = {
+                    "id": user_obj['id'],
+                    "type": "add"
+                }
+                active_socket.send(JSON.stringify(data))
                 setUser({...user_obj, is_logged_in: true})
                 resolve("Success")
             }
@@ -163,13 +190,17 @@ function Authenticaiton(){
 
     const logout = () => {
         setUser({...user_data, is_logged_in: false})
+        const data = {
+            "id": user.id,
+            "type": "remove"
+        }
         useEffect(()=>{
             navigate("/")
         }, [])
     }
 
     return (
-        <AuthContext.Provider value={{user, login, logout, mode, change_dark, create_comm, update_comm_id, update_messages, messages, setMessages}}>
+        <AuthContext.Provider value={{user, login, logout, mode, change_dark, create_comm, update_comm_id, update_messages, messages, setMessages, active_conns}}>
             <>
                 <Nav/>
                 <App/>
