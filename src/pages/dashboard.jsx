@@ -11,6 +11,9 @@ function Dashboard(){
   function leave_comm(){
     update_comm_id(user.id, null_uuid);
   }
+  function navigate_to_post_book(){
+    navigate("/post-book");
+  }
   if (user.community_id == null_uuid){
     return (
       <>
@@ -23,6 +26,7 @@ function Dashboard(){
       <>
         <p>Dashboard</p>
         <button onClick = {leave_comm}>Leave Community</button>
+        <button onClick={navigate_to_post_book}>Post a book</button>
       </>
   )
   

@@ -138,6 +138,83 @@ function Authenticaiton(){
       })
     }
 
+    const post_book = async (name, author, isbn, files, types) => {
+        console.log(files)
+        const url = base_url + "books";
+        const data = {
+            "owner_id" : user.id, 
+            "isbn": isbn, 
+            "name": name,
+            "author": author
+        }
+        const result = await fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        const response = await result.json();
+        console.log(response)
+        if (response.ID == null_uuid){
+            console.log("Failure in posting the book")
+        }
+        else{
+            console.log("Successfully posted book")
+            try{
+                await post_images(files, response.ID, types)
+            }
+            catch (error){
+                console.log(error)
+            }
+        }
+        return new Promise((resolve, reject) => {
+            resolve("Success")
+        })
+    }
+
+    const post_images = async (files, object_id, types) => {
+        const url = base_url + "images"
+        const formdata = new FormData();
+        console.log(files)
+        formdata.append("no", files.length.toString())
+        for(let x = 1; x <= files.length; x++){
+            formdata.append("image" + x.toString(), files[x-1])
+            formdata.append("type" + x.toString(), types[x-1])
+        }
+        formdata.append("id", object_id);
+        const result = await fetch(url, {
+            method: "POST", 
+            headers: {
+                'Accept': 'application/json',
+            },
+            body: formdata
+        });
+        const response = await result.json();
+        return new Promise((resolve, reject) => {
+            resolve("success")
+        })
+    }
+
+        // const post_image = async (file, objcet_id) =>{
+    //     const url = base_url + "images"
+    //     const formdata = new FormData();
+    //     formdata.append("image", file);
+    //     formdata.append("id", objcet_id);
+    //     const result = await fetch(url, {
+    //         method: "POST", 
+    //         headers: {
+    //             'Accept': 'application/json',
+    //         },
+    //         body: formdata
+    //     });
+    //     const response = await result.json();
+    //     return new Promise((resolve, reject) => {
+    //         resolve("success")
+    //     })
+    // }
+
     const create_comm = async (name, id) => {
       const url = base_url + "community";
       const comm_data = {
@@ -200,7 +277,7 @@ function Authenticaiton(){
     }
 
     return (
-        <AuthContext.Provider value={{user, login, logout, mode, change_dark, create_comm, update_comm_id, update_messages, messages, setMessages, active_conns}}>
+        <AuthContext.Provider value={{user, login, logout, mode, change_dark, create_comm, update_comm_id, update_messages, messages, setMessages, active_conns, post_book, post_images}}>
             <>
                 <Nav/>
                 <App/>
