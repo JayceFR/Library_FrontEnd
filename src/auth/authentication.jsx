@@ -197,24 +197,6 @@ function Authenticaiton(){
         })
     }
 
-        // const post_image = async (file, objcet_id) =>{
-    //     const url = base_url + "images"
-    //     const formdata = new FormData();
-    //     formdata.append("image", file);
-    //     formdata.append("id", objcet_id);
-    //     const result = await fetch(url, {
-    //         method: "POST", 
-    //         headers: {
-    //             'Accept': 'application/json',
-    //         },
-    //         body: formdata
-    //     });
-    //     const response = await result.json();
-    //     return new Promise((resolve, reject) => {
-    //         resolve("success")
-    //     })
-    // }
-
     const create_comm = async (name, id) => {
       const url = base_url + "community";
       const comm_data = {

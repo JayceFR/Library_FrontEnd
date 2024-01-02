@@ -45,13 +45,12 @@ function Create_Books() {
         reader.readAsDataURL(file)
       }
     }
-
   };
   function submit(e) {
     e.preventDefault();
     let files = [image, ...mulitple_images]
     let types = ["profile"]
-    for(let x = 1; x <= mulitple_images.length; x++){
+    for (let x = 1; x <= mulitple_images.length; x++) {
       types.push("normal")
     }
     do_post_book(files, types)
