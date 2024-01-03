@@ -67,7 +67,7 @@ function Create_Books() {
     <>
       <div className="lrform bookform">
         <form onSubmit={submit}>
-          <label>Post Book</label>
+          <label>Post A Book</label>
           <br></br>
           <div className="inputbox">
             <Input password={false} value={title} change_method={setTtitle} name={"Title"} />
