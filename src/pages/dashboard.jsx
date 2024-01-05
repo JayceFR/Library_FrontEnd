@@ -158,7 +158,7 @@ function Dashboard() {
           <br></br>
           <ul className='books'>
             {books.map((curr_book, index) => {
-              return <Books func={clicked_book} id={curr_book.book.ID} key={index} name={curr_book.book.name} author={curr_book.book.author} data={curr_book.image.data} />
+              return <Books menu={false} func={clicked_book} id={curr_book.book.ID} key={index} name={curr_book.book.name} author={curr_book.book.author} data={curr_book.image.data} />
             })}
           </ul>
         </div>

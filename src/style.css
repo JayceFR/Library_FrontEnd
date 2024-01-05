@@ -207,6 +207,22 @@ body {
     word-wrap: break-word;
 }
 
+.request{
+    display: block;
+    flex-direction: column;
+    margin: 5px;
+    font-size: 14px;
+    border-radius: 10px;
+    max-width: 50%;
+    color: white;
+    word-wrap: break-word;
+}
+
+.request p{
+    font-size: 16px;
+    margin: 5px;
+}
+
 .right {
     background-color: rgb(171, 41, 91);
     font-size: 20px;
@@ -470,6 +486,37 @@ input[type="file"]{
     grid-gap: 3em;
 }
 
+.bookss input{
+    background: transparent;
+    border: none;
+    outline: none;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    font-size: 16px;
+    color: white;
+    color-scheme: dark;
+    padding-left: 10px;
+}
+
+.request button{
+    background: transparent;
+    width: 100%;
+    line-height: 30px;
+    border: none;
+    outline: none;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    font-size: 16px;
+    color: white;
+    color-scheme: dark;
+    padding-left: 10px;
+    cursor: pointer;
+}
+
+.request button:hover{
+    box-shadow: 0 0 50px rgb(201, 56, 114);
+}
+
 .wrapper{
     overflow: hidden;
     display: flex;
@@ -527,6 +574,23 @@ input[type="file"]{
     height: 100%;
     object-fit: contain;
     margin-top: 10px;
+}
+
+.bookss li button{
+    font-size: large;
+    margin: auto;
+    padding: 10px;
+    color: white;
+    font-weight: bold;
+    background-color: #930d9a;
+    border-radius: 30px;
+    outline: none;
+    border: none;
+    cursor: pointer;
+}
+
+.bookss li button:hover{
+    box-shadow: 0 0 50px rgb(182, 54, 154);
 }
 
 .books li{
