@@ -15,7 +15,10 @@ function Nav(){
                 <ul className="navbar">
                     {
                         nav.map((curr_route, index) => {
-                            if (curr_route.isMenu && !curr_route.isPrivate){
+                            if (curr_route.hide && user.is_logged_in){
+                                return false
+                            }
+                            else if (curr_route.isMenu && !curr_route.isPrivate){
                                 return(<MenuItem key={index} curr_route={curr_route}/>)
                             }
                             else if (curr_route.isMenu && user.is_logged_in){
@@ -26,7 +29,7 @@ function Nav(){
                             }
                         })
                     }
-                    { user.is_logged_in ? <li><NavLink to={'/'} onClick={logout}>Log Out</NavLink></li> : <li><NavLink to={'/login'}>Log In</NavLink></li>}
+                    { user.is_logged_in ? <li><NavLink to={'/'} onClick={logout}>⛔</NavLink></li> : <li><NavLink to={'/login'}>Log In</NavLink></li>}
                 </ul>
             </nav>
             {mode == "dark" && <img id="light_dark_mode" src = "../../Assets/light_on.png"/>}

@@ -635,6 +635,7 @@ input[type="file"]{
     transition: all 0.5 ease;
     transform: translateX(calc(100% + 30px));
     overflow: hidden;
+    z-index: 99;
 }
 
 .notification_content{
