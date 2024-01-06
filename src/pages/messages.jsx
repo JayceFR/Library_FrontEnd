@@ -31,7 +31,7 @@ function Messages() {
   const [input, setInput] = useState("");
   const [receivers, setReceivers] = useState([]) // Used to hold the left pane members
   const [curr_receiver, setCurrReceiver] = useState(null) //Used to hold a member of the receivers
-  const { user, update_messages, messages, setMessages, active_conns } = AuthData();
+  const { user, update_messages, messages, setMessages, active_conns, notify} = AuthData();
   //Search socket connection
   const [search_socket, setSearchSocket] = useState(null);
   const [search, setSearch] = useState("");
@@ -168,6 +168,8 @@ function Messages() {
           "request": true,
         }
         socket.send(JSON.stringify(data))
+        //Post the notification
+        notify("New Request received for book " + respone.name + " from " + user.first_name, curr_receiver.id);
         resolve("success")
       }
     })

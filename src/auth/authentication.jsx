@@ -5,6 +5,7 @@ import App from "../index";
 import Nav from "../components/nav";
 import { useNavigate } from "react-router-dom";
 import { base_url, socket_url } from "../constants/urlConstants";
+import Notification from "../components/notification";
 export const AuthContext = createContext();
 
 export const AuthData = () => useContext(AuthContext);
@@ -16,6 +17,10 @@ function Authenticaiton(){
     //Active socket connection
     const [active_socket, setAcitveSocket] = useState(null);
     const [active_conns, setActiveConns] = useState([]);
+    //Notifications
+    const [notificaitons, setNotifications] = useState([]);
+    const [display_notificaiton, setDisplayNotificaiton] = useState(null);
+    const [notifykaro, setNotify] = useState(false);
 
     useEffect(()=>{
         const ws = new WebSocket(socket_url+"active");
@@ -28,7 +33,18 @@ function Authenticaiton(){
         ws.onmessage = (event) => {
             const message = JSON.parse(event.data);
             console.log(message);
-            setActiveConns(message);
+            if (message.type == "active"){
+                setActiveConns(message.Conns);
+            }
+            if (message.type == "notify"){
+                setNotifications((prev) => [message.notification, ...prev]);
+                setNotify(true);
+                function update_notify() {
+                    setNotify(false);
+                }
+                const timeout = setTimeout(update_notify, 7000)
+                setDisplayNotificaiton(message.notification);
+            }
         }
         setAcitveSocket(ws)
         return () => {
@@ -69,8 +85,9 @@ function Authenticaiton(){
             body: JSON.stringify(user_data)
         });
         const user_obj = await result.json();
+        console.log(user_obj);
         return new Promise((resolve, reject) => {
-            if (user_obj['id'] == null_uuid){
+            if (user_obj['user']['id'] == null_uuid){
                 console.log("Failed in logging in ")
                 setUser({...user_obj, is_logged_in: false})
                 reject("Incorrect email or password")
@@ -78,15 +95,26 @@ function Authenticaiton(){
             else{
                 console.log("Successfully logged in ")
                 const data = {
-                    "id": user_obj['id'],
-                    "type": "add"
+                    "id": user_obj['user']['id'],
+                    "type": "add", 
+                    "content": "",
                 }
-                active_socket.send(JSON.stringify(data))
-                setUser({...user_obj, is_logged_in: true})
-                resolve("Success")
+                setNotifications(user_obj['notifications']);
+                active_socket.send(JSON.stringify(data));
+                setUser({...user_obj['user'], is_logged_in: true});
+                resolve("Success");
             }
         })
         
+    }
+
+    const notify = (content, id) => {
+        const data = {
+            "id": id,
+            "type": "notify",
+            "content": content
+        };
+        active_socket.send(JSON.stringify(data));
     }
 
     const update_messages = async (sender_id, receiver_id) => {
@@ -259,8 +287,9 @@ function Authenticaiton(){
     }
 
     return (
-        <AuthContext.Provider value={{user, login, logout, mode, change_dark, create_comm, update_comm_id, update_messages, messages, setMessages, active_conns, post_book, post_images}}>
+        <AuthContext.Provider value={{user, login, logout, mode, change_dark, create_comm, update_comm_id, update_messages, messages, setMessages, active_conns, post_book, post_images, notify, notificaitons, display_notificaiton}}>
             <>
+                {notifykaro && <Notification content = {display_notificaiton.content}/>}
                 <Nav/>
                 <App/>
             </>
