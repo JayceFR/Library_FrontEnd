@@ -1,5 +1,5 @@
 //https://auth-db707.hstgr.io/index.php?db=u217768772_
-import  { createContext, useContext, useEffect, useState } from "react";
+import  { createContext, useContext, useEffect, useRef, useState } from "react";
 import { null_uuid } from "../constants/uuidConstants";
 import App from "../index";
 import Nav from "../components/nav";
@@ -19,7 +19,7 @@ function Authenticaiton(){
     const [active_conns, setActiveConns] = useState([]);
     //Notifications
     const [notificaitons, setNotifications] = useState([]);
-    const [display_notificaiton, setDisplayNotificaiton] = useState(null);
+    const [display_notificaiton, setDisplayNotificaiton] = useState({"content":""});
     const [notifykaro, setNotify] = useState(false);
 
     useEffect(()=>{
@@ -289,7 +289,8 @@ function Authenticaiton(){
     return (
         <AuthContext.Provider value={{user, login, logout, mode, change_dark, create_comm, update_comm_id, update_messages, messages, setMessages, active_conns, post_book, post_images, notify, notificaitons, display_notificaiton}}>
             <>
-                {notifykaro && <Notification content = {display_notificaiton.content}/>}
+                {/* {notifykaro && <Notification content = {display_notificaiton.content}/>} */}
+                <Notification show={notifykaro} content={display_notificaiton.content}/>
                 <Nav/>
                 <App/>
             </>

@@ -169,7 +169,7 @@ function Messages() {
         }
         socket.send(JSON.stringify(data))
         //Post the notification
-        notify("New Request received for book " + respone.name + " from " + user.first_name, curr_receiver.id);
+        notify("New Request received for book '" + respone.name + "' from " + user.first_name, curr_receiver.id);
         resolve("success")
       }
     })

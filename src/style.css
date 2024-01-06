@@ -8,6 +8,7 @@ body {
     background-color: var(--bgcolor);
     color: var(--txtcolor);
     transition: background-color 0.8s;
+    overflow-x: hidden;
 }
 
 .navbar {
@@ -624,26 +625,97 @@ input[type="file"]{
 
 .notification{
     position: absolute;
-    width: 30%;
-    min-height: 7vh;
-    word-wrap: break-word;
-    bottom: 50px;
-    right: 0px;
-    box-sizing: border-box;
-    z-index: 99;
-    border: 0.2px solid white;
+    top: 90px;
+    right: 30px;
+    border-radius: 10px;
+    background: white;
+    padding: 20px 25px 20px 25px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, .1);
+    border-left: 6px solid #f32695;
+    transition: all 0.5 ease;
+    transform: translateX(calc(100% + 30px));
+    overflow: hidden;
 }
 
-.notification img{
-    box-sizing: border-box;
-    left: 10%;
-    width: 10%;
+.notification_content{
+    display: flex;
+    align-items: center;
+
 }
 
-.notification p{
-    left: 80%;
-    box-sizing: border-box;
+.notification_content img{
+    justify-content: center;
+    height: 35px;
+    width: 35px;
+    background: #f32695;
+    color: white;
+    font-size: 20px;
+    border-radius: 50%;
 }
+
+.notification_content .notmessage{
+    display: flex;
+    flex-direction: column;
+    margin: 0 20px;
+}
+
+.notmessage .txt{
+    font-size: 20px;
+    font-weight: 400;
+    color: #666666;
+}
+
+.notmessage .txt-1{
+    font-weight: 600;
+    color: #333;
+}
+
+.notmessage .close{
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    padding: 5px;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.notification .close:hover{
+    opacity: 1;
+}
+
+.notification .progress{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: #ddd;
+}
+
+.notification .progress:before{
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    background: #e63a96;
+}
+
+.notification.active{
+    transform: translateX(0%);
+}
+
+.progress.active::before {
+    animation: progress 7s linear forwards;
+}
+
+@keyframes progress{
+    100%{
+        right: 100%;
+    }
+}
+
 
 ::-webkit-scrollbar-track {
     box-shadow: inset 0 0 5px grey;
