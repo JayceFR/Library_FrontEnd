@@ -323,6 +323,7 @@ function Authenticaiton() {
     return (
         <AuthContext.Provider value={{ user, login, logout, mode, change_dark, create_comm, update_comm_id, update_messages, messages, setMessages, active_conns, post_book, post_images, notify, notificaitons, display_notificaiton, send_request }}>
             <>
+                <img className="logo" src="../Assets/book_reader.png"/>
                 {/* {notifykaro && <Notification content = {display_notificaiton.content}/>} */}
                 <Notification show={notifykaro} content={display_notificaiton.content} />
                 <Nav />
