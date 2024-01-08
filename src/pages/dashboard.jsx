@@ -4,14 +4,18 @@ import { null_uuid } from '../constants/uuidConstants';
 import { useNavigate } from "react-router-dom";
 import { base_url } from '../constants/urlConstants';
 import Books from '../components/book';
+import Comm from '../components/comm';
 function Dashboard() {
-  const { user, update_comm_id } = AuthData();
+  const { user, update_comm_id, send_request} = AuthData();
   const [books, setBooks] = useState([]);
   const [comm, setComm] = useState(null);
   const [class_name, setClass_name] = useState("content hide");
   const [selected_book, setSelectedBook] = useState(null);
   const [timer_pos, setTimerPos] = useState(0);
   const [timer, setTimer] = useState(null);
+  const [comms, setComms] = useState([]);
+  const [from_date, setFromDate] = useState(null);
+  const [to_date, setToDate] = useState(null);
 
   const navigate = useNavigate();
   function navigate_to_create_community() {
@@ -28,9 +32,20 @@ function Dashboard() {
     if (user.community_id != null_uuid) {
       fetch_comm();
       fetch_books();
+    } else{
+      fetch_comms();
     }
   }, []);
 
+  useEffect(() => {
+    //Every time the community id changes
+    if (user.community_id != null_uuid) {
+      fetch_comm();
+      fetch_books();
+    } else{
+      fetch_comms();
+    }
+  }, [user.community_id])
   //timer
   useEffect(() => {
     console.log("selected book has changed")
@@ -67,6 +82,32 @@ function Dashboard() {
     }
   }
 
+  function fetch_comms(){
+    try{
+      get_comms()
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
+  const get_comms = async() => {
+    const url = base_url + "community";
+    const result = await fetch(url, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    });
+    const response = await result.json();
+    console.log(response);
+    setComms(response);
+    return new Promise((resolve, reject) => {
+      resolve("success");
+    })
+  }
+
 
   function clicked_book(id) {
     setClass_name("content");
@@ -76,7 +117,6 @@ function Dashboard() {
     } catch (error) {
       console.log(error)
     }
-
   }
 
   const get_curr_book = async (id) => {
@@ -117,6 +157,16 @@ function Dashboard() {
       resolve("success");
     })
   }
+
+  function comm_click(comm_id){
+    try{
+      update_comm_id(user.id, comm_id);
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
   const get_community = async () => {
     const url = base_url + "community/" + user.community_id;
     const result = await fetch(url, {
@@ -142,8 +192,20 @@ function Dashboard() {
       <>
         <p>Not part of a community?</p>
         <button onClick={navigate_to_create_community}>Create One</button>
+        {comms.map((curr_comm, index) => {
+          return <Comm key={index} func={comm_click} id={curr_comm.id} name={curr_comm.community_name}/>
+        })}
       </>
     )
+  }
+
+  function do_send_request(){
+    try{
+      send_request(selected_book.book.ID, from_date, to_date, selected_book.book.Owner_id)
+    }
+    catch(error){
+      console.log(error)
+    }
   }
 
   return (
@@ -168,6 +230,9 @@ function Dashboard() {
               <p>{selected_book.book.name}</p>
               <p>{selected_book.book.author}</p>
               <p>ISBN number : {selected_book.book.ISBN}</p>
+              <br></br>
+              {!selected_book.book.borrowed && <> <input onChange={(e) => {setFromDate(new Date(e.target.value))}} type="date"/>  TO  <input onChange={(e) => {setToDate(new Date(e.target.value))}} type="date"/> </>}
+              {!selected_book.book.borrowed && <button onClick={do_send_request}>Request To Borrow</button> }
               <div className='slides' style={{ maxHeight: '50px', maxWidth: '500px' }}>
                 {selected_book.images.map((curr_image, index) => {
                   if (index == timer_pos) {
@@ -176,7 +241,6 @@ function Dashboard() {
                   return <img className='slide' src={`data:image/png;base64, ${curr_image.data}`} style={{ width: '100%', maxHeight: '500px', display: 'none' }} />
                 })}
               </div>
-              <button>Request To Borrow</button>
             </>}
         </div>
       </div>
