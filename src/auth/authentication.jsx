@@ -34,6 +34,7 @@ function Authenticaiton() {
             const message = JSON.parse(event.data);
             console.log(message);
             if (message.type == "active") {
+                console.log("I am here");
                 setActiveConns(message.Conns);
             }
             if (message.type == "notify") {

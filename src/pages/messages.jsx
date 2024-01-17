@@ -117,6 +117,7 @@ function Messages() {
   }, [messages]);
 
   useEffect(() => {
+    console.log("Inside the change function")
     for (let y = 0; y < receivers.length; y++) {
       let present = false;
       for (let x = 0; x < active_conns.length; x++) {

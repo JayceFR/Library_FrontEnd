@@ -9,7 +9,6 @@ body {
     color: var(--txtcolor);
     transition: background-color 0.8s;
     overflow-x: hidden;
-    overflow-y: hidden;
     /* all: unset */
 }
 
@@ -995,7 +994,7 @@ input[type="file"]{
 
 .logo{
     position: absolute;
-    width: 80px;
+    width: 50px;
 }
 
 ::-webkit-scrollbar-track {
