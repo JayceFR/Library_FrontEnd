@@ -1,13 +1,13 @@
 import { useState } from "react";
 import Input from "../components/input";
-import {password_regex_value } from "../constants/regexConstants";
+import {comm_name_regex_value } from "../constants/regexConstants";
 import { AuthData } from "../auth/authentication";
 import { useNavigate } from 'react-router-dom'
 function Create_Community(){
   const [name, setName] = useState("");
   const [can_submit, setCan_submit] = useState(false);
 
-  const name_regex = new RegExp(password_regex_value);
+  const name_regex = new RegExp(comm_name_regex_value);
   const {user, create_comm, update_comm_id} = AuthData();
 
   const navigate = useNavigate();

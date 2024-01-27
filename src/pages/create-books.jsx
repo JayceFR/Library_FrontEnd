@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Input from "../components/input";
 import { AuthData } from "../auth/authentication";
+import { post_book_regex_value } from "../constants/regexConstants";
 
 function Create_Books() {
   const [title, setTtitle] = useState("");
@@ -11,6 +12,10 @@ function Create_Books() {
   const [mulitple_images, setMultipleImages] = useState([]);
   const [display_image, setDisplayImage] = useState(null);
   const [display_images, setDisplayImages] = useState([])
+  //validation of title and author
+  const post_book_regex = new RegExp(post_book_regex_value);
+  const [valid_txt, setValidText] = useState(false);
+  const [valid_author, setValidAuthor] = useState(false);
   const { post_book } = AuthData();
   if (!can_submit) {
     if (image) {
@@ -22,6 +27,29 @@ function Create_Books() {
       setCan_submit(false);
     }
   }
+  //validation of title
+  if (post_book_regex.test(title)){
+    if (!valid_txt){
+      setValidText(true);
+    }
+  }
+  else{
+    if (valid_txt){
+      setValidText(false);
+    }
+  }
+  //validation of author
+  if (post_book_regex.test(author)){
+    if (!valid_author){
+      setValidAuthor(true);
+    }
+  }
+  else{
+    if (valid_author){
+      setValidAuthor(false);
+    }
+  }
+
   const handleChangeImage = (e) => {
     let file = e.target.files[0];
     setImage(e.target.files[0]);
@@ -104,7 +132,7 @@ function Create_Books() {
             </div>
           </div>
           {
-            can_submit && <input className="btn" type='submit' />
+            (can_submit && valid_txt && valid_author) && <input className="btn" type='submit' />
           }
         </form>
       </div>

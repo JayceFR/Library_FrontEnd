@@ -7,6 +7,7 @@ import Books from "../components/book";
 import Request from "../components/request";
 import { null_uuid } from "../constants/uuidConstants";
 import { isTemplateLiteralTypeNode } from "typescript";
+import { message_regex_value } from "../constants/regexConstants";
 //Sample message sent to the socket
 /*
 {"content":"hello", 
@@ -41,6 +42,9 @@ function Messages() {
   //Fetching books 
   const [books, setBooks] = useState([]);
   const [request_book, setRequestBook] = useState(null);
+  //validation of messages
+  const message_regex = new RegExp(message_regex_value);
+  const [long_message, setLongMessage] = useState(false);
   useEffect(() => {
     //On mount
     const ws = new WebSocket(socket_url + "ws?id=" + user.id);
@@ -267,6 +271,9 @@ function Messages() {
 
   function post_message(e) {
     e.preventDefault();
+    if (long_message){
+      return
+    }
     const data = {
       "content": input,
       "sender_id": user.id,
@@ -451,6 +458,16 @@ function Messages() {
     }
   }
 
+  if (message_regex.test(input)){
+    if (!long_message){
+      setLongMessage(true);
+    }
+  }
+  else{
+    if (long_message){
+      setLongMessage(false);
+    }
+  }
 
   return (
     <>
@@ -507,7 +524,7 @@ function Messages() {
 
           <form onSubmit={post_message}>
             <input className="input_bx" type="text" value={input} placeholder="Type a message..." onChange={e => { setInput(e.target.value) }} />
-            <input className="send" type="image" src="../../Assets/send_icon.png" />
+            {!long_message && <input className="send" type="image" src="../../Assets/send_icon.png" />}
           </form>
         </div>
         <div className="chatbooks">

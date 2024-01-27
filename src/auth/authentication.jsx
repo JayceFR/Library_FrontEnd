@@ -53,15 +53,18 @@ function Authenticaiton() {
         }
     }, [])
 
+    //swap the themes
     function change_dark() {
         var r = document.querySelector(':root');
         if (mode == "dark") {
+            //light mode
             r.style.setProperty('--bgcolor', '#E2E2E2')
             r.style.setProperty('--txtcolor', '#1B1B1B')
             r.style.setProperty('--empcolor', 'black')
             setMode("light");
         }
         else {
+            //dark mode
             r.style.setProperty('--txtcolor', '#E2E2E2')
             r.style.setProperty('--bgcolor', '#1B1B1B')
             r.style.setProperty('--empcolor', 'white')
