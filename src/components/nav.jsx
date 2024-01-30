@@ -29,7 +29,7 @@ function Nav(){
                             }
                         })
                     }
-                    { user.is_logged_in ? <li><NavLink to={'/'} onClick={logout}>⛔</NavLink></li> : <li><NavLink to={'/login'}>Log In</NavLink></li>}
+                    { user.is_logged_in ? <li onClick={() => {return logout()}}><NavLink to={'/'} >⛔</NavLink></li> : <li><NavLink to={'/login'}>Log In</NavLink></li>}
                 </ul>
             </nav>
             {mode == "dark" && <img id="light_dark_mode" src = "../../Assets/light_on.png"/>}

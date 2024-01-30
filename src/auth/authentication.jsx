@@ -11,7 +11,11 @@ export const AuthContext = createContext();
 export const AuthData = () => useContext(AuthContext);
 
 function Authenticaiton() {
-    const [user, setUser] = useState({ id: null, first_name: null, email: null, password: null, community_id: null, is_logged_in: false });
+    const [user, setUser] = useState(() => {
+        const storedUserState = localStorage.getItem('userState');
+        console.log("The stored user state ", storedUserState);
+        return storedUserState ? JSON.parse(storedUserState) : { id: null, first_name: null, email: null, password: null, community_id: null, is_logged_in: false };
+    });
     const [mode, setMode] = useState("dark");
     const [messages, setMessages] = useState([]);
     //Active socket connection
@@ -21,6 +25,17 @@ function Authenticaiton() {
     const [notificaitons, setNotifications] = useState([]);
     const [display_notificaiton, setDisplayNotificaiton] = useState({ "content": "" });
     const [notifykaro, setNotify] = useState(false);
+
+    useEffect(() => {
+        localStorage.setItem('userState', JSON.stringify(user));
+    }, [user])
+
+    useEffect(() => {
+        console.log(user.is_logged_in);
+        if (!user.is_logged_in) {
+            localStorage.removeItem('userState');
+        }
+    }, [user.is_logged_in]);
 
     useEffect(() => {
         const ws = new WebSocket(socket_url + "active");
@@ -188,20 +203,20 @@ function Authenticaiton() {
         }
         return new Promise((resolve, reject) => {
             if (respone.ID == null_uuid) {
-              reject("book fetching failed");
+                reject("book fetching failed");
             }
             else {
-              const data = {
-                "type": "request",
-                "id": owner_id,
-                "content": JSON.stringify(obj),
+                const data = {
+                    "type": "request",
+                    "id": owner_id,
+                    "content": JSON.stringify(obj),
+                }
+                active_socket.send(JSON.stringify(data))
+                //Post the notification
+                notify("New Request received for book '" + respone.name + "' from " + user.first_name, owner_id);
+                resolve("success")
             }
-              active_socket.send(JSON.stringify(data))
-              //Post the notification
-              notify("New Request received for book '" + respone.name + "' from " + user.first_name, owner_id);
-              resolve("success")
-            }
-          })
+        })
     }
 
     const post_book = async (name, author, isbn, files, types) => {
@@ -314,20 +329,13 @@ function Authenticaiton() {
     }
 
     const logout = () => {
-        setUser({ ...user_data, is_logged_in: false })
-        const data = {
-            "id": user.id,
-            "type": "remove"
-        }
-        useEffect(() => {
-            navigate("/")
-        }, [])
+        setUser({ ...user, is_logged_in: false })
     }
 
     return (
         <AuthContext.Provider value={{ user, login, logout, mode, change_dark, create_comm, update_comm_id, update_messages, messages, setMessages, active_conns, post_book, post_images, notify, notificaitons, display_notificaiton, send_request }}>
             <>
-                <img className="logo" src="../Assets/book_reader.png"/>
+                <img className="logo" src="../Assets/book_reader.png" />
                 {/* {notifykaro && <Notification content = {display_notificaiton.content}/>} */}
                 <Notification show={notifykaro} content={display_notificaiton.content} />
                 <Nav />
