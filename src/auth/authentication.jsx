@@ -14,7 +14,14 @@ function Authenticaiton() {
     const [user, setUser] = useState(() => {
         const storedUserState = localStorage.getItem('userState');
         console.log("The stored user state ", storedUserState);
-        return storedUserState ? JSON.parse(storedUserState) : { id: null, first_name: null, email: null, password: null, community_id: null, is_logged_in: false };
+        return storedUserState ? JSON.parse(storedUserState) : { 
+            id: null, 
+            first_name: null, 
+            email: null, 
+            password: null, 
+            community_id: null, 
+            is_logged_in: false 
+        };
     });
     const [mode, setMode] = useState("dark");
     const [messages, setMessages] = useState([]);
@@ -278,6 +285,18 @@ function Authenticaiton() {
         })
     }
 
+    const remove_notification = async (id) => {
+        const url = base_url + "notifications/" + id;
+        const result = await fetch(url, {
+            method: "DELETE",
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+        });
+        setNotifications((prev) => prev.filter((n) => n.id != id));
+    }
+
     const create_comm = async (name, id) => {
         const url = base_url + "community";
         const comm_data = {
@@ -333,7 +352,7 @@ function Authenticaiton() {
     }
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, mode, change_dark, create_comm, update_comm_id, update_messages, messages, setMessages, active_conns, post_book, post_images, notify, notificaitons, display_notificaiton, send_request }}>
+        <AuthContext.Provider value={{ user, login, logout, mode, change_dark, create_comm, update_comm_id, update_messages, messages, setMessages, active_conns, post_book, post_images, notify, notificaitons, display_notificaiton, send_request, remove_notification }}>
             <>
                 <img className="logo" src="../Assets/book_reader.png" />
                 {/* {notifykaro && <Notification content = {display_notificaiton.content}/>} */}

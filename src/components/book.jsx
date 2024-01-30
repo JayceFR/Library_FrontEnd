@@ -27,6 +27,8 @@ function Books(props) {
         </div>
         <h3>{props.name}</h3>
         <p>{props.author}</p>
+        {props.borrowed && <p style = {{'color':'red'}}>Borrowed</p>}
+        <br></br>
       </li>
     </>
   )

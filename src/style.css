@@ -666,6 +666,23 @@ input[type="file"]{
 
 }
 
+.notifications{
+    
+    border-radius: 10px;
+    background: white;
+    padding: 20px 25px 20px 25px;
+    margin-left: 30vh;
+    margin-right: 30vh;
+    margin-bottom: 2vh;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, .1);
+    border-left: 6px solid #f32695;
+    transition: all 0.5 ease;
+    /* transform: translateX(calc(100% + 30px)); */
+    overflow: hidden;
+    z-index: 99;
+    cursor: pointer;
+}
+
 .notification_content img{
     justify-content: center;
     height: 35px;

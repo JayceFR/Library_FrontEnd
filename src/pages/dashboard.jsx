@@ -220,7 +220,7 @@ function Dashboard() {
           <br></br>
           <ul className='books'>
             {books.map((curr_book, index) => {
-              return <Books menu={false} func={clicked_book} id={curr_book.book.ID} key={index} name={curr_book.book.name} author={curr_book.book.author} data={curr_book.image.data} />
+              return <Books menu={false} func={clicked_book} id={curr_book.book.ID} key={index} name={curr_book.book.name} author={curr_book.book.author} data={curr_book.image.data} borrowed={curr_book.book.borrowed} />
             })}
           </ul>
         </div>
@@ -233,6 +233,7 @@ function Dashboard() {
               <br></br>
               {!selected_book.book.borrowed && <> <input onChange={(e) => {setFromDate(new Date(e.target.value))}} type="date"/>  TO  <input onChange={(e) => {setToDate(new Date(e.target.value))}} type="date"/> </>}
               {!selected_book.book.borrowed && <button onClick={do_send_request}>Request To Borrow</button> }
+              {selected_book.book.borrowed && <p style = {{'color':'red'}}>This book is currently borrowed</p>}
               <div className='slides' style={{ maxHeight: '50px', maxWidth: '500px' }}>
                 {selected_book.images.map((curr_image, index) => {
                   if (index == timer_pos) {
