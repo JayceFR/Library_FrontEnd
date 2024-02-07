@@ -6,6 +6,8 @@ import Nav from "../components/nav";
 import { useNavigate } from "react-router-dom";
 import { base_url, socket_url } from "../constants/urlConstants";
 import Notification from "../components/notification";
+import song from '../../Assets/bg_music.wav'
+import song2 from '../../Assets/notification_sound.wav'
 export const AuthContext = createContext();
 
 export const AuthData = () => useContext(AuthContext);
@@ -20,7 +22,8 @@ function Authenticaiton() {
             email: null, 
             password: null, 
             community_id: null, 
-            is_logged_in: false 
+            is_logged_in: false, 
+            play: false
         };
     });
     const [mode, setMode] = useState("dark");
@@ -30,9 +33,15 @@ function Authenticaiton() {
     const [active_conns, setActiveConns] = useState([]);
     //Notifications
     const [notificaitons, setNotifications] = useState([]);
-    const [display_notificaiton, setDisplayNotificaiton] = useState({ "content": "" });
+    const [display_notificaiton, setDisplayNotificaiton] = useState();
     const [notifykaro, setNotify] = useState(false);
+    //music
+    const [audio, setAudio] = useState(new Audio(song));
+    const [play, setPlay] = useState(false);
+    //notification sound
+    const [notify_audio, setNotifyAudio] = useState(new Audio(song2));
 
+    //storing and retrieving the user from local storage
     useEffect(() => {
         localStorage.setItem('userState', JSON.stringify(user));
     }, [user])
@@ -44,6 +53,20 @@ function Authenticaiton() {
         }
     }, [user.is_logged_in]);
 
+    //Repeating the music
+    useEffect(()=>{
+        audio.addEventListener('ended', handleAudioEnded);
+        return ()=>{
+            audio.removeEventListener('ended', handleAudioEnded);
+        }
+    }, [audio])
+
+    const handleAudioEnded = () =>{
+        audio.currentTime = 0;
+        audio.play();
+    }
+
+    //Handle active socket connection
     useEffect(() => {
         const ws = new WebSocket(socket_url + "active");
         ws.onopen = () => {
@@ -56,17 +79,13 @@ function Authenticaiton() {
             const message = JSON.parse(event.data);
             console.log(message);
             if (message.type == "active") {
-                console.log("I am here");
                 setActiveConns(message.Conns);
             }
             if (message.type == "notify") {
+                //play notification sound
+                notify_audio.play()
                 setNotifications((prev) => [message.notification, ...prev]);
-                setNotify(true);
-                function update_notify() {
-                    setNotify(false);
-                }
-                const timeout = setTimeout(update_notify, 7000)
-                setDisplayNotificaiton(message.notification);
+                notify_user(message.notification.content)
             }
         }
         setAcitveSocket(ws)
@@ -74,6 +93,28 @@ function Authenticaiton() {
             ws.close();
         }
     }, [])
+
+    //notifying the user
+    function notify_user(content){
+        setNotify(true);
+        function update_notify() {
+            setNotify(false);
+        }
+        const timeout = setTimeout(update_notify, 7000)
+        setDisplayNotificaiton(content);
+    }
+
+    function toggle_music(){
+        if (play){
+            setPlay(false);
+            audio.pause();
+        }
+        else{
+            setPlay(true);
+            audio.volume = 0.2
+            audio.play();
+        }
+    }
 
     //swap the themes
     function change_dark() {
@@ -115,7 +156,9 @@ function Authenticaiton() {
         return new Promise((resolve, reject) => {
             if (user_obj['user']['id'] == null_uuid) {
                 console.log("Failed in logging in ")
+                //Failure in logging in so notify the user
                 setUser({ ...user_obj, is_logged_in: false })
+                notify_user("Failed in logging in!! Incorrect Email or Password")
                 reject("Incorrect email or password")
             }
             else {
@@ -128,6 +171,8 @@ function Authenticaiton() {
                 setNotifications(user_obj['notifications']);
                 active_socket.send(JSON.stringify(data));
                 setUser({ ...user_obj['user'], is_logged_in: true });
+                //greet the user
+                notify_user("Welcome " + user_obj['user']['first_name'])
                 resolve("Success");
             }
         })
@@ -348,15 +393,17 @@ function Authenticaiton() {
     }
 
     const logout = () => {
+        audio.pause();
+        setPlay(false);
         setUser({ ...user, is_logged_in: false })
     }
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, mode, change_dark, create_comm, update_comm_id, update_messages, messages, setMessages, active_conns, post_book, post_images, notify, notificaitons, display_notificaiton, send_request, remove_notification }}>
+        <AuthContext.Provider value={{ user, login, logout, mode, change_dark, create_comm, update_comm_id, update_messages, messages, setMessages, active_conns, post_book, post_images, notify, notificaitons, display_notificaiton, send_request, remove_notification, notify_user, play, toggle_music }}>
             <>
                 <img className="logo" src="../Assets/book_reader.png" />
                 {/* {notifykaro && <Notification content = {display_notificaiton.content}/>} */}
-                <Notification show={notifykaro} content={display_notificaiton.content} />
+                <Notification show={notifykaro} content={display_notificaiton} />
                 <Nav />
                 <App />
             </>

@@ -16,7 +16,7 @@ function Register() {
   const [password, setPassword] = useState("")
   const [can_submit, setCan_submit] = useState(false)
 
-  const {mode} = AuthData();
+  const {mode, notify_user} = AuthData();
 
   const navigate = useNavigate();
 
@@ -42,6 +42,7 @@ function Register() {
       "email": email,
       "password": password
     }
+    //Registering the user
     const result = await fetch(url, {
       method: 'POST',
       headers: {
@@ -50,6 +51,14 @@ function Register() {
       },
       body: JSON.stringify(user_data)
     })
+    //Notify the user
+    if (result.ok){
+      console.log("Successfully registered")
+      notify_user("Registered successfully!!!")
+    }
+    else{
+      notify_user("Error Encountered While Registering!! Found another account with the same email")
+    }
 
     const result2 = await fetch(url, {
       headers: {
